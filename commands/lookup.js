@@ -5,41 +5,35 @@ const { default: axios } = require('axios');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
+    perms: [],
     data: new SlashCommandBuilder()
         .setName('lookup')
         .setDescription('Verifies a payment ID')
         .addStringOption(option => option.setName('id').setDescription('The payment / checkout ID').setRequired(true)),
         async execute(interaction) {
-            let failed
-            const r = await axios.get(`https://plugin.tebex.io/payments/${interaction.options.get('id').value}`, {
+            const res = await axios.get(`https://plugin.tebex.io/payments/${interaction.options.get('id').value}`, {
                 method: 'GET',
                 headers: { 'X-Tebex-Secret': tebexSecret },
-                })
-                .catch(err => {
-                    failed = true;
-                    return interaction.reply({ content: 'No purchase found with that ID!', ephemeral: true })
-                })
-
-            if(failed === true) return;
-            const d = await r.data;
-            
-            if(d.status !==  'Complete') return interaction.reply({ content: `Purchase is currently marked as ${d.status}`})
-
-            let eee = [];
-
-            d.packages.forEach(a => {
-                eee.push(a.name)
+            }).catch(err => {
+                return interaction.reply({ content: 'No purchase found with that ID!', ephemeral: true })
             })
+
+            if(!res) return;
+            const data = await res.data;
+            
+            if(data.status !==  'Complete') return interaction.reply({ content: `Purchase is currently marked as ${data.status}`})
+
+            const packages = data.packages.map(package => package.name)
 
             const embed = new Discord.MessageEmbed()
                 .setColor(embedColour)
                 .setAuthor(`Purchase Lookup`)
                 .setThumbnail(interaction.guild.iconURL())
-                .addField(`Price Payed`, `${d.amount} ${d.currency.iso_4217}`)
-                .addField(`Date Purchased`, d.date.slice(0,10))
-                .addField(`Item(s) Purchased`, eee.join(', '))
-                .addField(`Player Name`, d.player.name)
-                .addField(`Email`, d.email)
+                .addField(`Price Payed`, `${data.amount} ${data.currency.iso_4217}`)
+                .addField(`Date Purchased`, data.date.slice(0,10))
+                .addField(`Item(s) Purchased`, packages.join(', '))
+                .addField(`Player Name`, data.player.name)
+                .addField(`Email`, data.email)
                 .setFooter(`${footer} - Made By Cryptonized`, interaction.guild.iconURL());
             interaction.reply({ embeds: [embed] })
     },

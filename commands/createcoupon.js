@@ -4,6 +4,7 @@ const moment = require('moment');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
+    perms: [],
     data: new SlashCommandBuilder()
         .setName('createcoupon')
         .setDescription('Create a new coupon')
@@ -18,20 +19,6 @@ module.exports = {
         .addIntegerOption((option) => option.setName('amount').setDescription('Value / percent of coupon').setRequired(true))
         .addIntegerOption((option) => option.setName('uses').setDescription('Limit of uses, enter 0 for unlimited').setRequired(true)),
     async execute(interaction) {
-        function checkUser(id) {
-            let a = false;
-            const user = interaction.guild.members.cache.get(id);
-            const all = couponperms.split(',')
-            all.forEach(curr => {
-                if(user.roles.cache.find(r => r.id === curr) || !curr) {
-                    a = true;
-                }
-            })
-            return a;
-        }
-
-        if(checkUser(interaction.user.id) !== true) return interaction.reply({ content: 'You do not have permission to run this command!', ephemeral: true })
-
         function createCode(len) {
             const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZFabcdefghijklmnopqrstuvwxyz-'
             var result = '';
