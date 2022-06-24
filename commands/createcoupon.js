@@ -14,7 +14,7 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     { name: 'Value', value: 'value' },
-                    { name: 'Percentage', value: 'Percentage' }
+                    { name: 'Percentage', value: 'percentage' }
                 ))
         .addIntegerOption((option) => option.setName('amount').setDescription('Value / percent of coupon').setRequired(true))
         .addIntegerOption((option) => option.setName('uses').setDescription('Limit of uses, enter 0 for unlimited').setRequired(true)),
